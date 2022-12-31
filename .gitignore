@@ -1,3 +1,5 @@
 out/
 obj/
+.cache/
+compile_commands.json
 

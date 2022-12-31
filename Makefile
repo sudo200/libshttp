@@ -2,7 +2,9 @@ include config.mk
 include lib/libs.mk
 all: out/libshttp.so
 
-out/libshttp.so: out obj/lib.c.o
+out/libshttp.so: out \
+	obj/methods.c.o \
+	
 	if [ -n '$(wildcard obj/*.cpp.o)' ]; then $(CXX) -shared $(LDFLAGS) -o'out/.so' $(wildcard obj/*.o) $(wildcard lib/bin/*.a); else $(CC) -shared $(LDFLAGS) -o'out/.so' $(wildcard obj/*.o) $(wildcard lib/bin/*.a); fi
 	$(OBJCOPY) --only-keep-debug 'out/.so' 'out/.so.dbg'
 	chmod -x out/.so*
@@ -25,4 +27,8 @@ out:
 obj:
 	$(MKDIR) obj
 
-.PHONY: clean all
+
+compiledb: clean
+	bear -- $(MAKE)
+
+.PHONY: clean all compiledb

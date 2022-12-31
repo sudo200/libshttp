@@ -20,7 +20,7 @@ typedef enum {
 /**
  * @brief Returns a string representation of the given http method.
  * @param method  The method to 'stringify'.
- * @param len If not NULL, the length of the string will be written at the address pointed to by {@arg len}.
+ * @param len If not NULL, the length of the string will be written to the address pointed to by {@arg len}.
  * @returns The string representation of {@arg method}.
  */
 const char *http_method_to_string(http_method_t method, size_t *len);

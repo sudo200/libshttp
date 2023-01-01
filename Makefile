@@ -5,12 +5,13 @@ all: out/libshttp.so
 out/libshttp.so: out \
 	obj/methods.c.o \
 	obj/version.c.o \
+	obj/request_status_parser.c.o \
 	
-	if [ -n '$(wildcard obj/*.cpp.o)' ]; then $(CXX) -shared $(LDFLAGS) -o'out/.so' $(wildcard obj/*.o) $(wildcard lib/bin/*.a); else $(CC) -shared $(LDFLAGS) -o'out/.so' $(wildcard obj/*.o) $(wildcard lib/bin/*.a); fi
-	$(OBJCOPY) --only-keep-debug 'out/.so' 'out/.so.dbg'
-	chmod -x out/.so*
-	$(OBJCOPY) --strip-unneeded 'out/.so'
-	$(OBJCOPY) --add-gnu-debuglink='out/.so.dbg' 'out/.so.dbg'
+	if [ -n '$(wildcard obj/*.cpp.o)' ]; then $(CXX) -shared $(LDFLAGS) -o'out/libshttp.so' $(wildcard obj/*.o) $(wildcard lib/bin/*.a); else $(CC) -shared $(LDFLAGS) -o'out/libshttp.so' $(wildcard obj/*.o) $(wildcard lib/bin/*.a); fi
+	$(OBJCOPY) --only-keep-debug 'out/libshttp.so' 'out/libshttp.so.dbg'
+	chmod -x out/libshttp.so*
+	$(OBJCOPY) --strip-unneeded 'out/libshttp.so'
+	$(OBJCOPY) --add-gnu-debuglink='out/libshttp.so.dbg' 'out/libshttp.so'
 
 obj/%.cpp.o: obj src/%.cpp
 	$(CXX) -c -o'$@' 'src/$(patsubst obj/%.cpp.o,%,$@).cpp' $(CXXFLAGS)
@@ -28,8 +29,9 @@ out:
 obj:
 	$(MKDIR) obj
 
+include test/tests.mk
 
 compiledb: clean
-	bear -- $(MAKE)
+	bear -- $(MAKE) test
 
 .PHONY: clean all compiledb

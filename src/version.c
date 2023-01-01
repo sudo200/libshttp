@@ -26,13 +26,13 @@ http_version_t http_version_from_string(const char *str) {
   if(str == NULL)
     return UNKNOWN_VERSION;
 
-  if(equals(str, "HTTP_0_9"))
+  if(equals(str, "HTTP/0.9"))
     return HTTP_0_9;
-  if(equals(str, "HTTP_1_0"))
+  if(equals(str, "HTTP/1.0"))
     return HTTP_1_0;
-  if(equals(str, "HTTP_1_1"))
+  if(equals(str, "HTTP/1.1"))
     return HTTP_1_1;
-  if(equals(str, "HTTP_2_0"))
+  if(equals(str, "HTTP/2.0"))
     return HTTP_2_0;
 
   return UNKNOWN_VERSION;

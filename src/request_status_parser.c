@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <sutil/dmem.h>
@@ -71,5 +72,36 @@ parse_status_t parse_request_status(http_request_status_t *status, void *buf, si
   *offset = i + 2; // skip \r\n
 
   return PARSE_OK;
+}
+
+to_string_status_t request_status_to_string(const http_request_status_t *status, void *buf, size_t buflen, size_t *offset) {
+  if(status == NULL || buf == NULL)
+    return TOSTR_ARG_ERR;
+
+  if(offset == NULL) {
+    size_t dummy;
+    offset = &dummy;
+  }
+
+  const char *const format = "%s %s %s\r\n";
+
+  int len = snprintf(NULL, 0, format,
+      http_method_to_string(status->method, NULL),
+      status->url,
+      http_version_to_string(status->version, NULL)
+      );
+
+  if(len >= buflen)
+    return TOSTR_BUF_OVF;
+
+  *offset = len + 1;
+  if(snprintf((char *)buf, buflen, format,
+      http_method_to_string(status->method, NULL),
+      status->url,
+      http_version_to_string(status->version, NULL)
+      ) < 0)
+    return TOSTR_ERR;
+
+  return TOSTR_OK;
 }
 

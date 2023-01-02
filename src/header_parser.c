@@ -45,3 +45,38 @@ parse_status_t parse_headers(http_headers_t *headers, void *buf, size_t buflen, 
   return PARSE_OK;
 }
 
+
+static const char *const format = "%s: %s\r\n";
+
+static void lencheck(void *k, size_t kl, void *v, void *p) {
+  const char *key = (const char *)k;
+  const char *value = (const char *)v;
+  size_t *len = (size_t *)p;
+
+  *len += snprintf(NULL, 0, format, key, value);
+}
+
+static void stringify(void *k, size_t kl, void *v, void *p) {
+  const char *key = (const char *)k;
+  const char *value = (const char *)v;
+  char **buffer = (char **)p;
+
+  *buffer += sprintf(*buffer, format, key, value);
+}
+
+to_string_status_t headers_to_string(const http_headers_t *headers, void *buf, size_t buflen, size_t *offset) {
+  if(headers == NULL || buf == NULL)
+    return TOSTR_ARG_ERR;
+
+  size_t len = 1UL;
+  hashmap_foreach(*headers, lencheck, &len);
+  if(len >= buflen)
+    return TOSTR_BUF_OVF;
+
+  *offset = len + 1;
+
+  hashmap_foreach(*headers, stringify, &buf);
+
+  return TOSTR_OK;
+}
+

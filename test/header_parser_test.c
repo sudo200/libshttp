@@ -1,5 +1,7 @@
 #include <string.h>
 
+#include <sutil/hash.h>
+
 #include "test.h"
 
 #include "header_parser.h"
@@ -8,8 +10,10 @@
 #define stra(str) (void *)str, strlen((const char *)str)
 
 static void check_NULL(void) {
-  parse_status_t status = parse_headers(NULL, NULL, 0UL, NULL);
-  ASSERT(status == PARSE_ARG_ERR);
+  parse_status_t pstatus = parse_headers(NULL, NULL, 0UL, NULL);
+  to_string_status_t tsstatus = headers_to_string(NULL, NULL, 0UL, NULL);
+  assert(tsstatus == TOSTR_ARG_ERR);
+  ASSERT(pstatus == PARSE_ARG_ERR);
 }
 
 static void check_buffer_safety(void) {
@@ -18,9 +22,18 @@ static void check_buffer_safety(void) {
     "Hostname: getalife.com\r\n"
   };
   http_headers_t headers;
-  parse_status_t status = parse_headers(&headers, buf, sizeof(buf) - 1, NULL);
+  parse_status_t pstatus = parse_headers(&headers, buf, sizeof(buf) - 1, NULL);
   hashmap_destroy(headers);
-  ASSERT(status == PARSE_BUF_OVF);
+
+  headers = hashmap_new(fnv1a);
+  hashmap_put(headers, stra("Server"), "AMOGUS");
+  hashmap_put(headers, stra("Content-Length"), "42069");
+  hashmap_put(headers, stra("Content-Type"), "application/x-sussus-amogus");
+  to_string_status_t tsstatus = headers_to_string(&headers, buf, sizeof(buf), NULL);
+  hashmap_destroy(headers);
+
+  assert(tsstatus == TOSTR_BUF_OVF);
+  ASSERT(pstatus == PARSE_BUF_OVF);
 }
 
 static void check_parse(void) {
@@ -31,11 +44,21 @@ static void check_parse(void) {
   };
   size_t offset;
   http_headers_t headers;
-  parse_status_t status = parse_headers(&headers, buf, sizeof(buf) - 1, &offset);
+  parse_status_t pstatus = parse_headers(&headers, buf, sizeof(buf) - 1, &offset);
   assert(equals((const char *)hashmap_get(headers, stra("Accept")), "*/*"));
   assert(equals((const char *)hashmap_get(headers, stra("User-Agent")), "Smith"));
   hashmap_destroy(headers);
-  ASSERT(status == PARSE_OK);
+
+  headers = hashmap_new(fnv1a);
+  hashmap_put(headers, stra("Server"), "shttp v1.1");
+  hashmap_put(headers, stra("Conn"), "yes");
+  to_string_status_t tsstatus = headers_to_string(&headers, buf, sizeof(buf) - 1, &offset);
+  hashmap_destroy(headers);
+
+  assert(equals(buf, "Server: shttp v1.1\r\nConn: yes\r\n"));
+
+  assert(tsstatus == TOSTR_OK);
+  ASSERT(pstatus == PARSE_OK);
 }
 
 int main(void) {

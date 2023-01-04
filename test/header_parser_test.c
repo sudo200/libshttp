@@ -37,7 +37,7 @@ static void check_buffer_safety(void) {
 }
 
 static void check_parse(void) {
-  char buf[] = {
+  char buf[0xFFF] = {
     "Accept: */*\r\n"
     "User-Agent: Smith\r\n"
     "\r\n"
@@ -55,9 +55,9 @@ static void check_parse(void) {
   to_string_status_t tsstatus = headers_to_string(&headers, buf, sizeof(buf) - 1, &offset);
   hashmap_destroy(headers);
 
-  assert(equals(buf, "Server: shttp v1.1\r\nConn: yes\r\n"));
-
   assert(tsstatus == TOSTR_OK);
+  assert(equals(buf, "Server: shttp v1.1\r\nConn: yes\r\n\r\n"));
+
   ASSERT(pstatus == PARSE_OK);
 }
 

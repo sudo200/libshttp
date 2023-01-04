@@ -2,6 +2,8 @@ TEST_INCLUDE=-Iinclude -I./lib/sunit/include
 
 test: out/test_request_status_parser \
 			out/test_header_parser \
+			out/test_http_request_parser \
+			out/test_http_response_parser \
 	
 	@echo 'ALL TESTS PASSED!'
 

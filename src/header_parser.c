@@ -68,7 +68,7 @@ to_string_status_t headers_to_string(const http_headers_t *headers, void *buf, s
   if(headers == NULL || buf == NULL)
     return TOSTR_ARG_ERR;
 
-  size_t len = 1UL;
+  size_t len = 3UL;
   hashmap_foreach(*headers, lencheck, &len);
   if(len >= buflen)
     return TOSTR_BUF_OVF;
@@ -76,6 +76,8 @@ to_string_status_t headers_to_string(const http_headers_t *headers, void *buf, s
   *offset = len + 1;
 
   hashmap_foreach(*headers, stringify, &buf);
+  strcat((char *)buf, "\r\n");
+
 
   return TOSTR_OK;
 }

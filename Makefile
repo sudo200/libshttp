@@ -38,4 +38,13 @@ include test/tests.mk
 compiledb: clean
 	bear -- $(MAKE) test
 
-.PHONY: clean all compiledb
+install: all uninstall
+	cp out/libshttp.so* /usr/local/lib
+	cp -r include /usr/local/include/shttp
+
+uninstall:
+	[ ! -e /usr/local/include/shttp ] || $(RM) -r /usr/local/include/shttp
+	$(RM) /usr/local/lib/libshttp.so*
+
+
+.PHONY: clean all compiledb install uninstall
